@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+
+  @@map("user")
+}
+
+model Kelas {
+  id         Int      @id @default(autoincrement())
+  namaKelas  String
+  siswa      Siswa[]
+  kelasGuru  KelasGuru[]
+
+  @@map("kelas")
+}
+
+model Siswa {
+  id        Int    @id @default(autoincrement())
+  namaSiswa String
+  kelasId   Int
+  kelas     Kelas  @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+
+  @@map("siswa")
+}
+
+model Guru {
+  id         Int         @id @default(autoincrement())
+  namaGuru   String
+  kelasGuru  KelasGuru[]
+  guruMapel  GuruMapel[]
+
+  @@map("guru")
+}
+
+model MataPelajaran {
+  id          Int         @id @default(autoincrement())
+  namaMapel   String
+  guruMapel   GuruMapel[]
+
+  @@map("mata_pelajaran")
+}
+
+model KelasGuru {
+  id      Int    @id @default(autoincrement())
+  kelasId Int
+  guruId  Int
+
+  kelas   Kelas @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  guru    Guru  @relation(fields: [guruId], references: [id], onDelete: Cascade)
+
+  @@unique([kelasId, guruId])
+  @@map("kelas_guru")
+}
+
+model GuruMapel {
+  id          Int    @id @default(autoincrement())
+  guruId      Int
+  mapelId     Int
+
+  guru          Guru          @relation(fields: [guruId], references: [id], onDelete: Cascade)
+  mataPelajaran MataPelajaran @relation(fields: [mapelId], references: [id], onDelete: Cascade)
+
+  @@unique([guruId, mapelId])
+  @@map("guru_mapel")
+}
