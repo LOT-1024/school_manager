@@ -1,6 +1,37 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export async function GET(
+  req: Request,
+  context: { params: { id: string } }
+) {
+  const { id } = await Promise.resolve(context.params);
+  const guruId = Number(id);
+  try {
+    // Find the guru with the specified id and include related mata pelajaran via guruMapel
+    const guru = await prisma.guru.findUnique({
+      where: { id: guruId },
+      include: { 
+        guruMapel: { 
+          include: { mataPelajaran: true } 
+        } 
+      },
+    });
+    if (!guru) {
+      return NextResponse.json({ error: "Guru not found" }, { status: 404 });
+    }
+    // Map out the mata pelajaran from the guruMapel relationship
+    const mataPelajaran = guru.guruMapel.map((gm) => gm.mataPelajaran);
+    return NextResponse.json(mataPelajaran);
+  } catch (error) {
+    console.error("Error fetching mata pelajaran:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch mata pelajaran" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
     req: Request,
     context: { params: { id: string } }

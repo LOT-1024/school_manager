@@ -3,43 +3,39 @@ import { useEffect, useState } from "react";
 import { Trash, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 
-type Siswa = {
+interface MataPelajaran {
   id: number;
-  namaSiswa: string;
+  namaMapel: string;
   kelasId: number;
-  kelas:{
-    id: number,
-    namaKelas: string
-  }
 }
 
-export default function SiswaPage() {
-  const [siswa, setSiswa] = useState<Siswa[]>([]);
+export default function MataPelajaranPage() {
+  const [mataPelajaran, setMataPelajaran] = useState<MataPelajaran[]>([]);
 
   useEffect(() => {
-    fetchSiswa();
+    fetchMataPelajaran();
   }, []);
 
-  const fetchSiswa = async () => {
-    const res = await fetch("/api/siswa");
+  const fetchMataPelajaran = async () => {
+    const res = await fetch("/api/matapelajaran");
     const data = await res.json();
-    setSiswa(data);
+    setMataPelajaran(data);
   };
 
-  const deleteSiswa = async (id:number) => {
-    if (!confirm("Are you sure you want to delete this siswa?")) return;
-    await fetch(`/api/siswa/${id}`, {
+  const deleteMataPelajaran = async (id:number) => {
+    if (!confirm("Are you sure you want to delete this matapelajaran?")) return;
+    await fetch(`/api/matapelajaran/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
-    fetchSiswa();
+    fetchMataPelajaran();
   };
 
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Siswa Data</h1>
-        <Link href="/home/siswa/create" className="bg-blue-500 text-white p-2 rounded flex items-center">
+        <h1 className="text-2xl font-bold">Mata Pelajaran Data</h1>
+        <Link href="/home/matapelajaran/create" className="bg-blue-500 text-white p-2 rounded flex items-center">
           <Plus className="w-5 h-5 mr-2" /> Create
         </Link>
       </div>
@@ -47,28 +43,26 @@ export default function SiswaPage() {
         <thead>
           <tr>
             <th className="border px-4 py-2">ID</th>
-            <th className="border px-4 py-2">Nama Siswa</th>
-            <th className="border px-4 py-2">Kelas</th>
+            <th className="border px-4 py-2">Nama Mata Pelajaran</th>
             <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {siswa.map((item) => (
+          {mataPelajaran.map((item) => (
             <tr key={item.id} className="border">
               <td className="border px-4 py-2">{item.id}</td>
-              <td className="border px-4 py-2">{item.namaSiswa}</td>
-              <td className="border px-4 py-2">{item.kelas.namaKelas}</td>
+              <td className="border px-4 py-2">{item.namaMapel}</td>
               <td className="border px-4 py-2 flex space-x-2">
-                <button onClick={() => deleteSiswa(item.id)} className="text-red-500">
+                <button onClick={() => deleteMataPelajaran(item.id)} className="text-red-500">
                   <Trash className="w-5 h-5" />
                 </button>
-                <Link href={`/home/siswa/update/${item.id}`} className="text-blue-500">
+                <Link href={`/home/matapelajaran/update/${item.id}`} className="text-blue-500">
                   <Pencil className="w-5 h-5" />
                 </Link>
               </td>
             </tr>
           ))}
-          {siswa.length === 0 && (
+          {mataPelajaran.length === 0 && (
             <tr>
               <td colSpan={4} className="text-center p-4">
                 No data available.

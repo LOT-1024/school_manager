@@ -4,40 +4,59 @@ import { useRouter, useParams } from "next/navigation";
 
 export default function UpdateSiswaPage() {
   const [namaSiswa, setNamaSiswa] = useState("");
-  const [kelasId, setKelasId] = useState("");
+  const [kelasId, setKelasId] = useState<number | null>(null);
+  const [allClasses, setAllClasses] = useState<any[]>([]);
   const router = useRouter();
   const { id } = useParams();
 
   useEffect(() => {
-    if (!id) return; // Wait until id is available
-    const fetchSiswa = async () => {
-      try {
-        const res = await fetch(`/api/siswa/${id}`);
-        if (!res.ok) {
-          console.error("Failed to fetch siswa");
-          return;
-        }
-        const data = await res.json();
-        setNamaSiswa(data.namaSiswa || "");
-        // Convert kelasId to string for controlled number input
-        setKelasId(data.kelasId ? String(data.kelasId) : "");
-      } catch (error) {
-        console.error("Error fetching siswa:", error);
-      }
-    };
+    if (!id) return;
     fetchSiswa();
+    fetchClasses();
   }, [id]);
 
+  // Fetch siswa data from /api/siswa/[id]
+  const fetchSiswa = async () => {
+    try {
+      const res = await fetch(`/api/siswa/${id}`);
+      if (!res.ok) {
+        console.error("Failed to fetch siswa");
+        return;
+      }
+      const data = await res.json();
+      setNamaSiswa(data.namaSiswa || "");
+      setKelasId(data.kelasId); // kelasId is a number from the API
+    } catch (error) {
+      console.error("Error fetching siswa:", error);
+    }
+  };
+
+  // Fetch all classes from /api/kelas for the dropdown
+  const fetchClasses = async () => {
+    try {
+      const res = await fetch("/api/kelas");
+      if (!res.ok) {
+        console.error("Failed to fetch classes");
+        return;
+      }
+      const data = await res.json();
+      setAllClasses(data);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    }
+  };
+
+  // Update siswa using PUT /api/siswa/[id]
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const res = await fetch(`/api/siswa/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ namaSiswa, kelasId: Number(kelasId) }),
+        body: JSON.stringify({ namaSiswa, kelasId }),
       });
       if (res.ok) {
-        router.push("/siswa");
+        router.push("/home/siswa");
       } else {
         console.error("Failed to update siswa");
       }
@@ -61,14 +80,21 @@ export default function UpdateSiswaPage() {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">Kelas ID</label>
-          <input
-            type="number"
-            value={kelasId}
-            onChange={(e) => setKelasId(e.target.value)}
-            className="w-full border p-2 rounded"
-            required
-          />
+          <label className="block mb-2">Kelas</label>
+          <select
+            className="border p-2 rounded w-full"
+            value={kelasId !== null ? kelasId : ""}
+            onChange={(e) => setKelasId(Number(e.target.value))}
+          >
+            <option value="" disabled>
+              Select Class
+            </option>
+            {allClasses.map((kelas) => (
+              <option key={kelas.id} value={kelas.id}>
+                {kelas.namaKelas}
+              </option>
+            ))}
+          </select>
         </div>
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
           Update

@@ -43,11 +43,11 @@ const data = {
         },
         {
           title: "Kelas",
-          url: "#",
+          url: "/home/kelas",
         },
         {
           title: "Mata Pelajaran",
-          url: "#",
+          url: "/home/matapelajaran",
         },
       ],
     },

@@ -9,7 +9,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
    cd your-repo
    ```
 
-2. Set up the database:
+2. Install dependencies:
+   ```sh
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Set up the database:
    - Create a **.env** file in the root of your project and add the following:
      ```env
      DATABASE_URL="postgresql://user:password@localhost:5432/mydatabase"
@@ -17,12 +24,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
    - Replace `user`, `password`, and `mydatabase` with your actual database credentials.
 
 
-3. Run the migration to create tables in the database:
+4. Run the migration to create tables in the database:
    ```sh
    npx prisma migrate dev --name init
    ```
 
-4. Generate the Prisma client:
+5. Generate the Prisma client:
    ```sh
    npx prisma generate
    ```

@@ -1,6 +1,40 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = await Promise.resolve(params);
+  try {
+    const guru = await prisma.guru.findUnique({
+      where: { id: Number(id) },
+      include: {
+        kelasGuru: {
+          include: {
+            kelas: true,
+          },
+        },
+      },
+    });
+
+    if (!guru) {
+      return NextResponse.json({ error: "Guru not found" }, { status: 404 });
+    }
+
+    // Extract only the kelas from the kelasGuru relation.
+    const kelasList = guru.kelasGuru.map((kg) => kg.kelas);
+
+    return NextResponse.json(kelasList);
+  } catch (error) {
+    console.error("Error fetching kelas for guru:", error);
+    return NextResponse.json(
+      { error: "Error fetching kelas for guru" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(req: Request, context: { params: { id: string } }) {
   // Ensure the params object is awaited before use
   const { id } = await Promise.resolve(context.params);
